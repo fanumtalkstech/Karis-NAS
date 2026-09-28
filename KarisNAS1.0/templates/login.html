@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NAS Portal - Sign In</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NAS">
+    <link rel="apple-touch-icon" href="/app_icon">
+
+    <style>
+
+        :root {
+
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --radius-full: 980px;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 16px 32px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.12);
+
+            --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --duration-fast: 150ms;
+            --duration-base: 300ms;
+            --duration-slow: 500ms;
+        }
+
+        :root, [data-theme="light"] {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F7;
+            --bg: #F5F5F7;
+            --card-bg: rgba(255, 255, 255, 0.82);
+            --card-subtle: #F0F0F3;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text: #1D1D1F;
+            --accent-blue: #0071E3;
+            --accent: #0071E3;
+            --accent-glow: rgba(0, 113, 227, 0.28);
+            --accent-green: #30D158;
+            --success: #30D158;
+            --danger: #FF3B30;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --separator: rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.78);
+            --island-bg: rgba(255, 255, 255, 0.85);
+            --island-border: rgba(0, 0, 0, 0.08);
+            --island-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+            --modal-backdrop: rgba(0, 0, 0, 0.35);
+            --edit-outline: rgba(0, 113, 227, 0.45);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #000000;
+            --bg-secondary: #161618;
+            --bg: #000000;
+            --card-bg: rgba(28, 28, 30, 0.75);
+            --card-subtle: #242426;
+            --text-primary: #F5F5F7;
+            --text-secondary: #A1A1A6;
+            --text: #F5F5F7;
+            --accent-blue: #0A84FF;
+            --accent: #0A84FF;
+            --accent-glow: rgba(10, 132, 255, 0.32);
+            --accent-green: #30D158;
+            --success: #30D158;
+            --danger: #FF453A;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --separator: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(28, 28, 30, 0.75);
+            --island-bg: rgba(28, 28, 30, 0.88);
+            --island-border: rgba(255, 255, 255, 0.14);
+            --island-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
+            --edit-outline: rgba(10, 132, 255, 0.5);
+        }
+
+        [data-theme="oled"], [data-theme="black"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0A0A0C;
+            --bg: #000000;
+            --card-bg: rgba(16, 16, 18, 0.82);
+            --card-subtle: #141416;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8E8E93;
+            --text: #FFFFFF;
+            --accent-blue: #0A84FF;
+            --accent: #0A84FF;
+            --accent-glow: rgba(10, 132, 255, 0.35);
+            --accent-green: #30D158;
+            --success: #30D158;
+            --danger: #FF453A;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --separator: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(14, 14, 16, 0.82);
+            --island-bg: rgba(18, 18, 20, 0.92);
+            --island-border: rgba(255, 255, 255, 0.16);
+            --island-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
+            --modal-backdrop: rgba(0, 0, 0, 0.85);
+            --edit-outline: rgba(10, 132, 255, 0.5);
+        }
+
+        [data-theme="red-dark"] {
+            --bg-primary: #0F0708; --bg-secondary: #1B0D10; --bg: #0F0708;
+            --card-bg: rgba(36, 18, 22, 0.8); --card-subtle: #2C161B;
+            --text-primary: #FFF0F2; --text-secondary: #D4909C; --text: #FFF0F2;
+            --accent: #FF3B30; --accent-glow: rgba(255, 59, 48, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(255, 59, 48, 0.16); --separator: rgba(255, 59, 48, 0.12);
+            --glass-bg: rgba(36, 18, 22, 0.8); --island-bg: rgba(36, 18, 22, 0.9);
+            --island-border: rgba(255, 59, 48, 0.22); --island-shadow: 0 16px 40px rgba(18, 8, 10, 0.7);
+            --modal-backdrop: rgba(12, 5, 7, 0.8); --edit-outline: rgba(255, 59, 48, 0.5);
+        }
+        [data-theme="red-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #FFF5F5; --bg: #FFF5F5;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #FFEBEB;
+            --text-primary: #260A0E; --text-secondary: #8E545C; --text: #260A0E;
+            --accent: #E53935; --accent-glow: rgba(229, 57, 53, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(229, 57, 53, 0.12); --separator: rgba(229, 57, 53, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(229, 57, 53, 0.18); --island-shadow: 0 14px 36px rgba(229, 57, 53, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(229, 57, 53, 0.45);
+        }
+
+        [data-theme="orange-dark"] {
+            --bg-primary: #100A06; --bg-secondary: #1E120B; --bg: #100A06;
+            --card-bg: rgba(38, 22, 14, 0.8); --card-subtle: #311C11;
+            --text-primary: #FFF4ED; --text-secondary: #D4A083; --text: #FFF4ED;
+            --accent: #FF9500; --accent-glow: rgba(255, 149, 0, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(255, 149, 0, 0.16); --separator: rgba(255, 149, 0, 0.12);
+            --glass-bg: rgba(38, 22, 14, 0.8); --island-bg: rgba(38, 22, 14, 0.9);
+            --island-border: rgba(255, 149, 0, 0.22); --island-shadow: 0 16px 40px rgba(20, 10, 5, 0.7);
+            --modal-backdrop: rgba(14, 7, 4, 0.8); --edit-outline: rgba(255, 149, 0, 0.5);
+        }
+        [data-theme="orange-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #FFF8F2; --bg: #FFF8F2;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #FFEEDF;
+            --text-primary: #261205; --text-secondary: #8E5E3D; --text: #261205;
+            --accent: #F57C00; --accent-glow: rgba(245, 124, 0, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(245, 124, 0, 0.12); --separator: rgba(245, 124, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(245, 124, 0, 0.18); --island-shadow: 0 14px 36px rgba(245, 124, 0, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(245, 124, 0, 0.45);
+        }
+
+        [data-theme="yellow-dark"] {
+            --bg-primary: #100E05; --bg-secondary: #1E1A0A; --bg: #100E05;
+            --card-bg: rgba(38, 33, 13, 0.8); --card-subtle: #312A10;
+            --text-primary: #FFFDED; --text-secondary: #D4CA83; --text: #FFFDED;
+            --accent: #FFCC00; --accent-glow: rgba(255, 204, 0, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(255, 204, 0, 0.16); --separator: rgba(255, 204, 0, 0.12);
+            --glass-bg: rgba(38, 33, 13, 0.8); --island-bg: rgba(38, 33, 13, 0.9);
+            --island-border: rgba(255, 204, 0, 0.22); --island-shadow: 0 16px 40px rgba(18, 16, 5, 0.7);
+            --modal-backdrop: rgba(14, 12, 4, 0.8); --edit-outline: rgba(255, 204, 0, 0.5);
+        }
+        [data-theme="yellow-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #FFFFF2; --bg: #FFFFF2;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #FFFDE6;
+            --text-primary: #262205; --text-secondary: #8E813D; --text: #262205;
+            --accent: #FBC02D; --accent-glow: rgba(251, 192, 45, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(251, 192, 45, 0.14); --separator: rgba(251, 192, 45, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(251, 192, 45, 0.2); --island-shadow: 0 14px 36px rgba(251, 192, 45, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(251, 192, 45, 0.45);
+        }
+
+        [data-theme="green-dark"] {
+            --bg-primary: #06100A; --bg-secondary: #0C1E13; --bg: #06100A;
+            --card-bg: rgba(16, 38, 25, 0.8); --card-subtle: #163220;
+            --text-primary: #EDFDF4; --text-secondary: #8EC8A3; --text: #EDFDF4;
+            --accent: #30D158; --accent-glow: rgba(48, 209, 88, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(48, 209, 88, 0.16); --separator: rgba(48, 209, 88, 0.12);
+            --glass-bg: rgba(16, 38, 25, 0.8); --island-bg: rgba(16, 38, 25, 0.9);
+            --island-border: rgba(48, 209, 88, 0.22); --island-shadow: 0 16px 40px rgba(6, 18, 10, 0.7);
+            --modal-backdrop: rgba(4, 12, 7, 0.8); --edit-outline: rgba(48, 209, 88, 0.5);
+        }
+        [data-theme="green-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #F2FBF5; --bg: #F2FBF5;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #E3F7EB;
+            --text-primary: #062312; --text-secondary: #437352; --text: #062312;
+            --accent: #2E7D32; --accent-glow: rgba(46, 125, 50, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(46, 125, 50, 0.12); --separator: rgba(46, 125, 50, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(46, 125, 50, 0.18); --island-shadow: 0 14px 36px rgba(46, 125, 50, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(46, 125, 50, 0.45);
+        }
+
+        [data-theme="blue-dark"] {
+            --bg-primary: #060D18; --bg-secondary: #0D1A30; --bg: #060D18;
+            --card-bg: rgba(17, 33, 58, 0.8); --card-subtle: #162B4A;
+            --text-primary: #EDF5FF; --text-secondary: #8EAFDB; --text: #EDF5FF;
+            --accent: #0A84FF; --accent-glow: rgba(10, 132, 255, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(10, 132, 255, 0.16); --separator: rgba(10, 132, 255, 0.12);
+            --glass-bg: rgba(17, 33, 58, 0.8); --island-bg: rgba(17, 33, 58, 0.9);
+            --island-border: rgba(10, 132, 255, 0.22); --island-shadow: 0 16px 40px rgba(6, 15, 30, 0.7);
+            --modal-backdrop: rgba(4, 9, 18, 0.8); --edit-outline: rgba(10, 132, 255, 0.5);
+        }
+        [data-theme="blue-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #F2F7FD; --bg: #F2F7FD;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #E3EDFC;
+            --text-primary: #061528; --text-secondary: #435E82; --text: #061528;
+            --accent: #0071E3; --accent-glow: rgba(0, 113, 227, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(0, 113, 227, 0.12); --separator: rgba(0, 113, 227, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(0, 113, 227, 0.18); --island-shadow: 0 14px 36px rgba(0, 113, 227, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(0, 113, 227, 0.45);
+        }
+
+        [data-theme="purple-dark"] {
+            --bg-primary: #0C0716; --bg-secondary: #170E2A; --bg: #0C0716;
+            --card-bg: rgba(30, 18, 52, 0.8); --card-subtle: #271743;
+            --text-primary: #F8F2FF; --text-secondary: #B998E8; --text: #F8F2FF;
+            --accent: #BF5AF2; --accent-glow: rgba(191, 90, 242, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(191, 90, 242, 0.16); --separator: rgba(191, 90, 242, 0.12);
+            --glass-bg: rgba(30, 18, 52, 0.8); --island-bg: rgba(30, 18, 52, 0.9);
+            --island-border: rgba(191, 90, 242, 0.22); --island-shadow: 0 16px 40px rgba(15, 8, 25, 0.7);
+            --modal-backdrop: rgba(10, 5, 18, 0.8); --edit-outline: rgba(191, 90, 242, 0.5);
+        }
+        [data-theme="purple-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #F9F4FD; --bg: #F9F4FD;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #F2E7FC;
+            --text-primary: #1C082E; --text-secondary: #6B438E; --text: #1C082E;
+            --accent: #8E24AA; --accent-glow: rgba(142, 36, 170, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(142, 36, 170, 0.12); --separator: rgba(142, 36, 170, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(142, 36, 170, 0.18); --island-shadow: 0 14px 36px rgba(142, 36, 170, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(142, 36, 170, 0.45);
+        }
+
+        [data-theme="pink-dark"] {
+            --bg-primary: #12060E; --bg-secondary: #220C1B; --bg: #12060E;
+            --card-bg: rgba(42, 16, 34, 0.8); --card-subtle: #36142B;
+            --text-primary: #FFF0F7; --text-secondary: #DB90BD; --text: #FFF0F7;
+            --accent: #FF375F; --accent-glow: rgba(255, 55, 95, 0.35);
+            --danger: #FF453A; --success: #30D158; --border-color: rgba(255, 55, 95, 0.16); --separator: rgba(255, 55, 95, 0.12);
+            --glass-bg: rgba(42, 16, 34, 0.8); --island-bg: rgba(42, 16, 34, 0.9);
+            --island-border: rgba(255, 55, 95, 0.22); --island-shadow: 0 16px 40px rgba(22, 8, 18, 0.7);
+            --modal-backdrop: rgba(15, 5, 12, 0.8); --edit-outline: rgba(255, 55, 95, 0.5);
+        }
+        [data-theme="pink-light"] {
+            --bg-primary: #FFFFFF; --bg-secondary: #FFF4F9; --bg: #FFF4F9;
+            --card-bg: rgba(255, 255, 255, 0.85); --card-subtle: #FFE6F3;
+            --text-primary: #2B061D; --text-secondary: #8E406F; --text: #2B061D;
+            --accent: #D81B60; --accent-glow: rgba(216, 27, 96, 0.26);
+            --danger: #D32F2F; --success: #388E3C; --border-color: rgba(216, 27, 96, 0.12); --separator: rgba(216, 27, 96, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85); --island-bg: rgba(255, 255, 255, 0.92);
+            --island-border: rgba(216, 27, 96, 0.18); --island-shadow: 0 14px 36px rgba(216, 27, 96, 0.1);
+            --modal-backdrop: rgba(0, 0, 0, 0.35); --edit-outline: rgba(216, 27, 96, 0.45);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: var(--space-6) var(--space-4) max(var(--space-8), env(safe-area-inset-bottom));
+            transition: background-color var(--duration-base) var(--ease-apple), color var(--duration-base) var(--ease-apple);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            background: var(--card-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border-radius: var(--radius-2xl);
+            border: 1px solid var(--border-color);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-xl), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            animation: fadeInUp var(--duration-base) var(--ease-apple);
+            position: relative;
+        }
+        @media (max-width: 440px) {
+            .login-card { padding: var(--space-6) var(--space-4); border-radius: var(--radius-xl); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes appleShake {
+            0%, 100% { transform: translateX(0); }
+            15%, 45%, 75% { transform: translateX(-6px); }
+            30%, 60%, 90% { transform: translateX(6px); }
+        }
+        .apple-shake {
+            animation: appleShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 22px;
+            margin: 0 auto var(--space-4);
+            background: linear-gradient(150deg, var(--accent), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            box-shadow: 0 10px 28px var(--accent-glow);
+            transition: transform var(--duration-fast) var(--ease-apple);
+            user-select: none;
+        }
+        .app-icon:hover { transform: scale(1.04); }
+
+        h2 {
+            margin: 0 0 4px;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+        }
+        .subtitle {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-5);
+            line-height: 1.45;
+        }
+
+        .field-group {
+            background: rgba(120, 120, 128, 0.08);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--border-color);
+            transition: border-color var(--duration-fast) var(--ease-apple), box-shadow var(--duration-fast) var(--ease-apple), background var(--duration-fast) var(--ease-apple);
+        }
+        .field-group:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: var(--bg-primary);
+        }
+        .input-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .input-row:last-child { border-bottom: none; }
+        .input-row input {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+        }
+        .input-row input::placeholder { color: var(--text-secondary); }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px 8px;
+            font-size: 16px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: color var(--duration-fast) var(--ease-apple), transform var(--duration-fast) var(--ease-apple);
+        }
+        .password-toggle-btn:hover {
+            color: var(--text-primary);
+            transform: scale(1.08);
+        }
+
+        .btn-submit {
+            width: 100%;
+            min-height: 46px;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--accent-glow);
+            transition: all var(--duration-base) var(--ease-apple);
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        .btn-submit:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .error {
+            color: var(--danger);
+            font-size: 13.5px;
+            margin-bottom: var(--space-4);
+            background: rgba(255, 59, 48, 0.12);
+            border: 1px solid rgba(255, 59, 48, 0.24);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .theme-toggle-corner {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .theme-btn-pill {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-apple);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-btn-pill:hover {
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .terms-card {
+            margin-top: var(--space-5);
+            background: rgba(120, 120, 128, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+        }
+        .terms-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .terms-text {
+            font-size: 11.5px;
+            line-height: 1.45;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .terms-bullet {
+            margin: 4px 0 0;
+            padding-left: 16px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .terms-bullet li { margin-bottom: 2px; }
+    </style>
+    <script>
+        const savedTheme = localStorage.getItem('nas_theme') || '{{ user_theme or "dark" }}';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+    </script>
+</head>
+<body>
+    <div class="theme-toggle-corner">
+        <button class="theme-btn-pill" onclick="cycleTheme()" type="button" id="themeCycleBtn" title="Cycle Themes">
+            <span>🎨</span>
+            <span id="themeNameLabel">Theme</span>
+        </button>
+    </div>
+
+    <div class="login-card {% if error %}apple-shake{% endif %}" id="loginCard">
+        <div class="app-icon">🗄️</div>
+        <h2>Sign in to <span class="gradient-text">NAS Portal</span></h2>
+        <div class="subtitle">Home Cloud & Local Storage</div>
+
+        {% if error %}
+        <div class="error" id="errorBanner">
+            <span>⚠️</span>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}" autocomplete="on" id="loginForm">
+            <div class="field-group">
+                <div class="input-row">
+                    <input type="text" name="username" id="username" placeholder="Username" required
+                           autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+                </div>
+                <div class="input-row">
+                    <input type="password" name="password" id="password" placeholder="Password" required
+                           autocomplete="current-password">
+                    <button type="button" class="password-toggle-btn" id="passwordToggleBtn" onclick="togglePasswordVisibility()" title="Show/Hide Password" aria-label="Toggle password visibility">
+                        <span id="passwordEyeIcon">👁️</span>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+        </form>
+
+        <div class="terms-card">
+            <div class="terms-header">
+                <span>🛡️</span> Security & Server Safety Notice
+            </div>
+            <p class="terms-text">
+                All account passwords are encrypted using cryptographic hashing and are never stored in plain text.
+            </p>
+            <ul class="terms-bullet">
+                <li>Server administrators retain access to stored files for system maintenance, storage quota management, and network safety.</li>
+                <li>Access is restricted exclusively to authorized personal accounts.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const THEMES = [
+            'dark', 'oled', 'light',
+            'red-dark', 'red-light',
+            'orange-dark', 'orange-light',
+            'yellow-dark', 'yellow-light',
+            'green-dark', 'green-light',
+            'blue-dark', 'blue-light',
+            'purple-dark', 'purple-light',
+            'pink-dark', 'pink-light'
+        ];
+
+        function cycleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('nas_theme', next);
+            updateThemeLabel(next);
+        }
+
+        function updateThemeLabel(t) {
+            const lbl = document.getElementById('themeNameLabel');
+            if (lbl) {
+                lbl.textContent = t.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            if (!passInput) return;
+
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                if (eyeIcon) eyeIcon.textContent = '🙈';
+            } else {
+                passInput.type = 'password';
+                if (eyeIcon) eyeIcon.textContent = '👁️';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const userInp = document.getElementById('username');
+            const passInp = document.getElementById('password');
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeLabel(current);
+
+            if (userInp) {
+                if (userInp.value.trim().length > 0 && passInp) {
+                    passInp.focus();
+                } else {
+                    userInp.focus();
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

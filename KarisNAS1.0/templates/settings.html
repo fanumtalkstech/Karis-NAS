@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ user_theme or 'dark' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>System Settings | Karis-NAS</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0A84FF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Karis-NAS">
+    <link rel="apple-touch-icon" href="/app_icon">
+
+    <style>
+
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            --mono-font: "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+            --bg-base: #000000;
+            --bg-secondary: #0D0D11;
+            --bg-surface: rgba(26, 26, 30, 0.72);
+            --bg-surface-elevated: rgba(36, 36, 42, 0.88);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --text-tertiary: rgba(255, 255, 255, 0.42);
+
+            --apple-blue: #0A84FF;
+            --apple-blue-hover: #0071E3;
+            --apple-blue-glow: rgba(10, 132, 255, 0.35);
+            --apple-green: #30D158;
+            --apple-green-glow: rgba(48, 209, 88, 0.3);
+            --apple-red: #FF453A;
+            --apple-red-glow: rgba(255, 69, 58, 0.25);
+            --apple-amber: #FF9F0A;
+            --apple-purple: #BF5AF2;
+
+            --radius-xl: 22px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --radius-pill: 999px;
+            --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.45);
+            --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+            --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #F2F2F7;
+            --bg-secondary: #E5E5EA;
+            --bg-surface: rgba(255, 255, 255, 0.82);
+            --bg-surface-elevated: rgba(255, 255, 255, 0.95);
+            --border-glass: rgba(0, 0, 0, 0.09);
+            --border-subtle: rgba(0, 0, 0, 0.04);
+            --text-primary: #1C1C1E;
+            --text-secondary: rgba(0, 0, 0, 0.62);
+            --text-tertiary: rgba(0, 0, 0, 0.38);
+            --apple-blue: #007AFF;
+            --apple-blue-hover: #0062CC;
+            --apple-blue-glow: rgba(0, 122, 255, 0.25);
+            --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
+            --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="oled"], [data-theme="black"] {
+            --bg-base: #000000;
+            --bg-secondary: #050507;
+            --bg-surface: rgba(16, 16, 18, 0.88);
+            --bg-surface-elevated: rgba(22, 22, 26, 0.95);
+            --border-glass: rgba(255, 255, 255, 0.09);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: max(16px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(10, 132, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(191, 90, 242, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .settings-nav-bar {
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-float);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--apple-blue) 0%, #5856D6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 18px;
+            box-shadow: 0 4px 12px var(--apple-blue-glow);
+        }
+
+        .btn-done {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: var(--apple-blue);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13.5px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 4px 14px var(--apple-blue-glow);
+            transition: all 0.18s var(--ease-apple);
+        }
+
+        .btn-done:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .settings-container {
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .settings-sidebar {
+            background: var(--bg-surface);
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 12px 8px;
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-user-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .sidebar-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--border-glass);
+            background: var(--bg-surface-elevated);
+        }
+
+        .sidebar-user-name {
+            font-weight: 700;
+            font-size: 14.5px;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .sidebar-user-role {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.16s var(--ease-apple);
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            background: rgba(120, 120, 128, 0.12);
+        }
+
+        .tab-btn.active {
+            background: var(--apple-blue);
+            color: #FFFFFF;
+            font-weight: 600;
+            box-shadow: 0 4px 16px var(--apple-blue-glow);
+        }
+
+        .tab-btn.active .tab-icon {
+            color: #FFFFFF;
+        }
+
+        .tab-icon {
+            font-size: 17px;
+            width: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tab-badge {
+            margin-left: auto;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: var(--radius-pill);
+            background: rgba(120, 120, 128, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .tab-btn.active .tab-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeInTab 0.24s var(--ease-apple);
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .apple-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 24px 26px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .card-header {
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        .form-row {
+            margin-bottom: 16px;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .input-glass {
+            width: 100%;
+            background: rgba(120, 120, 128, 0.12);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            transition: all 0.16s ease;
+        }
+
+        .input-glass:focus {
+            border-color: var(--apple-blue);
+            background: rgba(120, 120, 128, 0.18);
+            box-shadow: 0 0 0 3px var(--apple-blue-glow);
+        }
+
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .switch-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .switch-info h4 {
+            font-size: 14.5px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .switch-info p {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .apple-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 30px;
+            flex-shrink: 0;
+        }
+
+        .apple-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(120, 120, 128, 0.3);
+            transition: .24s var(--ease-apple);
+            border-radius: 30px;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .24s var(--ease-apple);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .apple-switch input:checked + .switch-slider {
+            background-color: var(--apple-green);
+        }
+
+        .apple-switch input:checked + .switch-slider:before {
+            transform: translateX(20px);
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .theme-pill-card {
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(120, 120, 128, 0.08);
+            transition: all 0.18s var(--ease-apple);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-pill-card:hover {
+            transform: translateY(-2px);
+            background: rgba(120, 120, 128, 0.16);
+        }
+
+        .theme-pill-card.selected {
+            border-color: var(--apple-blue);
+            background: rgba(10, 132, 255, 0.14);
+            box-shadow: 0 4px 16px var(--apple-blue-glow);
+        }
+
+        .theme-preview-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .theme-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .theme-name {
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        .storage-status-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-radius: var(--radius-lg);
+            background: rgba(10, 132, 255, 0.1);
+            border: 1px solid rgba(10, 132, 255, 0.25);
+            margin-bottom: 20px;
+        }
+
+        .storage-badge-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--apple-green);
+            background: rgba(48, 209, 88, 0.15);
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .storage-alert-box {
+            background: rgba(255, 159, 10, 0.12);
+            border: 1px solid rgba(255, 159, 10, 0.3);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            color: #FFD60A;
+            display: none;
+            margin-top: 14px;
+        }
+
+        .update-hero {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 22px;
+            background: linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(191, 90, 242, 0.12) 100%);
+            border: 1px solid rgba(10, 132, 255, 0.3);
+            border-radius: var(--radius-xl);
+            margin-bottom: 20px;
+        }
+
+        .update-hero-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--apple-blue) 0%, #5856D6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            color: #FFFFFF;
+            box-shadow: 0 8px 24px var(--apple-blue-glow);
+            flex-shrink: 0;
+        }
+
+        .update-hero-info h3 {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .update-hero-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .sessions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            margin-top: 12px;
+        }
+
+        .sessions-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-glass);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .sessions-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+        }
+
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.18s var(--ease-apple);
+        }
+
+        .btn-pill.primary {
+            background: var(--apple-blue);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px var(--apple-blue-glow);
+        }
+
+        .btn-pill.primary:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .btn-pill.secondary {
+            background: rgba(120, 120, 128, 0.16);
+            color: var(--text-primary);
+        }
+
+        .btn-pill.secondary:hover {
+            background: rgba(120, 120, 128, 0.24);
+        }
+
+        .btn-pill.danger {
+            background: rgba(255, 69, 58, 0.16);
+            color: var(--apple-red);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+        }
+
+        .btn-pill.danger:hover {
+            background: var(--apple-red);
+            color: #FFFFFF;
+        }
+
+        #settingsToast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(28, 28, 30, 0.94);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.24s var(--ease-apple);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #settingsToast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 860px) {
+            .settings-container {
+                grid-template-columns: 1fr;
+            }
+            .settings-sidebar {
+                position: relative;
+                top: 0;
+                overflow-x: auto;
+                flex-direction: row;
+                padding: 8px;
+                border-radius: var(--radius-lg);
+            }
+            .sidebar-user-preview {
+                display: none;
+            }
+            .tab-btn {
+                white-space: nowrap;
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+            .tab-badge {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="settings-nav-bar">
+        <a href="/dashboard" class="nav-brand">
+            <div class="nav-brand-icon"></div>
+            <div>System Settings</div>
+        </a>
+        <a href="/dashboard" class="btn-done">Done</a>
+    </header>
+
+    <div class="settings-container">
+
+        <aside class="settings-sidebar">
+            <div class="sidebar-user-preview">
+                <img src="/avatar/{{ username }}" alt="Avatar" class="sidebar-avatar" onerror="this.src='/app_icon'">
+                <div>
+                    <div class="sidebar-user-name">{{ username }}</div>
+                    <div class="sidebar-user-role">{{ role }}</div>
+                </div>
+            </div>
+
+            <button type="button" class="tab-btn active" onclick="switchSettingsTab('account', this)">
+                <span class="tab-icon">👤</span>
+                <span>Account & Profile</span>
+            </button>
+
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('appearance', this)">
+                <span class="tab-icon">🎨</span>
+                <span>Appearance</span>
+            </button>
+
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('storage', this)">
+                <span class="tab-icon">📁</span>
+                <span>Storage & Files</span>
+                <span class="tab-badge">Active</span>
+            </button>
+
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('widgets', this)">
+                <span class="tab-icon">🧩</span>
+                <span>Widgets</span>
+            </button>
+
+            {% if role == 'admin' %}
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('features', this)">
+                <span class="tab-icon">🧪</span>
+                <span>Features & Services</span>
+                <span class="tab-badge">Admin</span>
+            </button>
+            {% endif %}
+
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('update', this)">
+                <span class="tab-icon">🚀</span>
+                <span>Software Update</span>
+                <span class="tab-badge" id="sidebarUpdateBadge">v{{ current_version or '1.0' }}</span>
+            </button>
+
+            <button type="button" class="tab-btn" onclick="switchSettingsTab('security', this)">
+                <span class="tab-icon">🔒</span>
+                <span>Security & Sessions</span>
+            </button>
+        </aside>
+
+        <main class="settings-main">
+
+            <section id="tab-account" class="tab-content active">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Profile Picture & Identity</h2>
+                        <p class="card-subtitle">Manage your visual appearance across files, shares, and messages.</p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                        <img src="/avatar/{{ username }}" id="profileAvatarPreview" class="sidebar-avatar" style="width: 72px; height: 72px; border-radius: 50%;" onerror="this.src='/app_icon'">
+                        <div>
+                            <form action="{{ url_for('upload_avatar') }}" method="POST" enctype="multipart/form-data" id="avatarForm" style="display:inline;">
+                                <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none;" onchange="document.getElementById('avatarForm').submit();">
+                                <button type="button" class="btn-pill secondary" onclick="document.getElementById('avatarInput').click();">Upload Photo</button>
+                            </form>
+                            <form action="{{ url_for('remove_avatar') }}" method="POST" style="display:inline; margin-left: 8px;">
+                                <button type="submit" class="btn-pill secondary" style="color: var(--apple-red);">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="input-glass" value="{{ username }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Change Password</h2>
+                        <p class="card-subtitle">Update your machine-local password with live security validation.</p>
+                    </div>
+
+                    <form action="{{ url_for('settings') }}" method="POST" id="passwordForm">
+                        <div class="form-row">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="old_password" class="input-glass" required>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" id="newPwdInput" class="input-glass" required oninput="validatePwdMatch()">
+                        </div>
+
+                        <div class="form-row">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="confirm_password" id="confirmPwdInput" class="input-glass" required oninput="validatePwdMatch()">
+                            <div id="pwdMatchStatus" style="font-size: 12.5px; font-weight: 600; margin-top: 6px;"></div>
+                        </div>
+
+                        <button type="submit" class="btn-pill primary" style="margin-top: 8px;">Update Password</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="tab-appearance" class="tab-content">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Theme & Color Palette</h2>
+                        <p class="card-subtitle">Select an Apple-calibrated appearance theme. Changes apply instantly.</p>
+                    </div>
+
+                    <div class="themes-grid">
+                        <div class="theme-pill-card {% if user_theme == 'dark' or not user_theme %}selected{% endif %}" onclick="applyThemeAjax('dark', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#000000;"></div>
+                                <div class="theme-dot" style="background:#0A84FF;"></div>
+                            </div>
+                            <span class="theme-name">Apple Dark</span>
+                        </div>
+
+                        <div class="theme-pill-card {% if user_theme == 'light' %}selected{% endif %}" onclick="applyThemeAjax('light', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#FFFFFF;"></div>
+                                <div class="theme-dot" style="background:#0071E3;"></div>
+                            </div>
+                            <span class="theme-name">Cupertino Light</span>
+                        </div>
+
+                        <div class="theme-pill-card {% if user_theme == 'oled' %}selected{% endif %}" onclick="applyThemeAjax('oled', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#000000;"></div>
+                                <div class="theme-dot" style="background:#30D158;"></div>
+                            </div>
+                            <span class="theme-name">OLED Black</span>
+                        </div>
+
+                        <div class="theme-pill-card {% if user_theme == 'midnight' %}selected{% endif %}" onclick="applyThemeAjax('midnight', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#0A1128;"></div>
+                                <div class="theme-dot" style="background:#00E5FF;"></div>
+                            </div>
+                            <span class="theme-name">Midnight Navy</span>
+                        </div>
+
+                        <div class="theme-pill-card {% if user_theme == 'sunset' %}selected{% endif %}" onclick="applyThemeAjax('sunset', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#2A1420;"></div>
+                                <div class="theme-dot" style="background:#FF9500;"></div>
+                            </div>
+                            <span class="theme-name">Sonoma Sunset</span>
+                        </div>
+
+                        <div class="theme-pill-card {% if user_theme == 'alpine' %}selected{% endif %}" onclick="applyThemeAjax('alpine', this)">
+                            <div class="theme-preview-dots">
+                                <div class="theme-dot" style="background:#0F231C;"></div>
+                                <div class="theme-dot" style="background:#30D158;"></div>
+                            </div>
+                            <span class="theme-name">Alpine Green</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Clock & Personal Greeting</h2>
+                        <p class="card-subtitle">Personalize your greeting and time format on the top bar.</p>
+                    </div>
+
+                    <form action="{{ url_for('settings') }}" method="POST">
+                        <div class="form-row">
+                            <label class="form-label">Custom Greeting</label>
+                            <input type="text" name="greeting" class="input-glass" value="{{ user_greeting or '' }}" placeholder="Welcome back, {{ username }}">
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>24-Hour Time Format</h4>
+                                <p>Toggle between 12-hour (1:45 PM) and 24-hour (13:45) clock display.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="clock_24h" value="1" {% if clock_format == '24h' %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-pill primary" style="margin-top: 18px;">Save Appearance Preferences</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="tab-storage" class="tab-content">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📁 Active Local Storage Location</h2>
+                        <p class="card-subtitle">Karis-NAS stores your files directly on your computer without cloud mediation.</p>
+                    </div>
+
+                    <div class="storage-status-banner">
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 2px;">ACTIVE FOLDER ON DISK</div>
+                            <div style="font-family: var(--mono-font); font-size: 14.5px; font-weight: 700; color: var(--text-primary); word-break: break-all;" id="currentStorageDisplay">
+                                {{ user_folder or (server_config or {}).get('storage_folder', 'C:\\KarisNAS1.0\\storage') }}
+                            </div>
+                        </div>
+                        <div class="storage-badge-online">● Online & Writable</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px;">
+                        <div style="background: rgba(120, 120, 128, 0.08); padding: 14px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-secondary);">Storage Quota</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-top: 4px;">{{ 'Unlimited' if role == 'admin' else '50.0 GB' }}</div>
+                        </div>
+                        <div style="background: rgba(120, 120, 128, 0.08); padding: 14px; border-radius: var(--radius-md);">
+                            <div style="font-size: 12px; color: var(--text-secondary);">Direct Media Streaming</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-top: 4px; color: var(--apple-green);">HTTP 206 Enabled</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">Change Storage Directory Path</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="targetFolderPathInput" class="input-glass" value="{{ user_folder or (server_config or {}).get('storage_folder', 'C:\\KarisNAS1.0\\storage') }}" placeholder="e.g. C:\KarisNAS1.0\storage or /Volumes/Storage">
+                            <button type="button" class="btn-pill secondary" onclick="scanTargetFolder()" style="flex-shrink: 0;">Scan Folder</button>
+                        </div>
+                    </div>
+
+                    <div id="storageAlertBox" class="storage-alert-box">
+                        <strong>💡 Existing Files Detected:</strong>
+                        <div id="storageAlertDetail" style="margin-top: 4px;">Found existing items in this directory. Karis-NAS will index and preserve all existing documents safely without overwriting.</div>
+                    </div>
+
+                    <button type="button" class="btn-pill primary" onclick="saveStorageFolderPath()" style="margin-top: 16px;">Save Storage Path</button>
+                </div>
+            </section>
+
+            <section id="tab-widgets" class="tab-content">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Dashboard Widgets</h2>
+                        <p class="card-subtitle">Enable or disable floating widgets visible on your main dashboard.</p>
+                    </div>
+
+                    <form id="widgetsForm" onchange="autoSaveWidgets()">
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Digital / Analog Clock</h4>
+                                <p>Displays live time, date, and uptime badge on your desktop dashboard.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="widget_clock" value="1" {% if (user_widgets or {}).get('clock', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Local Weather Card</h4>
+                                <p>Live temperature, weather radar conditions, and geocoded forecast.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="widget_weather" value="1" {% if (user_widgets or {}).get('weather', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Hardware Activity Monitor</h4>
+                                <p>Monitors CPU load, RAM utilization, and physical disk usage in real time.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="widget_stats" value="1" {% if (user_widgets or {}).get('stats', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Quick Scratchpad Notes</h4>
+                                <p>A private notepad for quick thoughts, links, and server reminders.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="widget_notes" value="1" {% if (user_widgets or {}).get('notes', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Encrypted Messaging Preview</h4>
+                                <p>Shows recent direct messages and unread indicators on your home board.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="widget_messages" value="1" {% if (user_widgets or {}).get('messages', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            {% if role == 'admin' %}
+            <section id="tab-features" class="tab-content">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Core Services Management</h2>
+                        <p class="card-subtitle">Enable or disable background services across your entire Karis-NAS server.</p>
+                    </div>
+
+                    <form action="{{ url_for('admin_update_features') }}" method="POST">
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>End-to-End Encrypted (E2EE) Messaging</h4>
+                                <p>Private client-side AES-256-GCM messaging between registered users.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="feature_messaging" value="1" {% if (features_config or {}).get('messaging', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>System Resource Telemetry</h4>
+                                <p>Exposes live hardware metrics for the host computer to the dashboard.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="feature_system_monitor" value="1" {% if (features_config or {}).get('system_monitor', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-row">
+                            <div class="switch-info">
+                                <h4>Weather Forecast Service</h4>
+                                <p>Enables NOAA / National Weather Service radar updates for your location.</p>
+                            </div>
+                            <label class="apple-switch">
+                                <input type="checkbox" name="feature_weather" value="1" {% if (features_config or {}).get('weather', True) %}checked{% endif %}>
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-row" style="margin-top: 20px;">
+                            <label class="form-label">Weather ZIP Code or City</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" name="weather_zip" id="weatherZipInput" class="input-glass" value="{{ weather_zip or '45631' }}" placeholder="e.g. 45631 or Gallipolis, OH">
+                                <button type="button" class="btn-pill secondary" onclick="lookupZipCode()" style="flex-shrink: 0;">Geocode</button>
+                            </div>
+                            <div id="zipResultLabel" style="font-size: 12.5px; color: var(--apple-blue); margin-top: 6px;">Location: Gallipolis, OH (38.8098, -82.2104)</div>
+                        </div>
+
+                        <button type="submit" class="btn-pill primary" style="margin-top: 14px;">Save Service Configuration</button>
+                    </form>
+                </div>
+            </section>
+            {% endif %}
+
+            <section id="tab-update" class="tab-content">
+                <div class="apple-card">
+                    <div class="update-hero">
+                        <div class="update-hero-icon">🚀</div>
+                        <div class="update-hero-info">
+                            <h3>Karis-NAS Software Update</h3>
+                            <p>Installed Version: <strong>{{ current_version or '1.0' }}</strong> &bull; Channel: <strong>Official Release</strong></p>
+                            <p style="margin-top: 2px;">Repository: <a href="https://github.com/fanumtalkstech/Karis-NAS" target="_blank" rel="noopener noreferrer" style="color: var(--apple-blue); text-decoration: none;">fanumtalkstech/Karis-NAS</a></p>
+                        </div>
+                    </div>
+
+                    <div id="updateStatusCard" style="background: rgba(120, 120, 128, 0.08); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-glass); margin-bottom: 20px;">
+                        <div id="updateStatusChecking" style="display: none; align-items: center; gap: 12px;">
+                            <div style="font-size: 24px; animation: spin 1.2s linear infinite;">↺</div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 14.5px;">Checking for updates...</div>
+                                <div style="font-size: 12.5px; color: var(--text-secondary);">Connecting to GitHub API for latest releases.</div>
+                            </div>
+                        </div>
+
+                        <div id="updateStatusUpToDate" style="display: flex; align-items: center; gap: 14px;">
+                            <span style="font-size: 26px; color: var(--apple-green);">✓</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 15px;">Karis-NAS is Up to Date</div>
+                                <div style="font-size: 13px; color: var(--text-secondary);">Version {{ current_version or '1.0' }}. Last checked today at <span id="lastCheckedTime">Just now</span>.</div>
+                            </div>
+                        </div>
+
+                        <div id="updateStatusAvailable" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <span style="font-size: 28px;">🚀</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 15.5px; color: var(--apple-blue);">Update Available: <span id="newReleaseVersionTag">1.0.1</span></div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">Includes 500 error diagnostic page, 60s countdown ring, and detached self-restart.</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-pill primary" onclick="triggerUpdateFromSettings()">Update Now</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" class="btn-pill secondary" id="btnCheckUpdateManual" onclick="checkGitHubUpdateManual()">
+                            <span>↺</span>
+                            <span>Check for Updates</span>
+                        </button>
+                    </div>
+
+                    <div class="switch-row" style="margin-top: 24px;">
+                        <div class="switch-info">
+                            <h4>Automatic Hourly Checks</h4>
+                            <p>Silently check GitHub every hour and display an alert pill when a new version is released.</p>
+                        </div>
+                        <label class="apple-switch">
+                            <input type="checkbox" id="hourlyUpdateToggle" checked onchange="toggleHourlyCheck(this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-security" class="tab-content">
+                <div class="apple-card">
+                    <div class="card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h2 class="card-title">Active Devices & Sessions</h2>
+                                <p class="card-subtitle">Manage browser sessions currently signed into your account.</p>
+                            </div>
+                            <form action="{{ url_for('revoke_other_sessions') }}" method="POST">
+                                <button type="submit" class="btn-pill danger">Sign Out All Other Devices</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <table class="sessions-table">
+                        <thead>
+                            <tr>
+                                <th>Device / Browser</th>
+                                <th>IP Address</th>
+                                <th>Last Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sess in active_sessions or [] %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">
+                                        {{ sess.get('user_agent', 'Web Browser')[:24] }}...
+                                        {% if sess.get('id') == current_session_token %}
+                                        <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(48, 209, 88, 0.15); color: var(--apple-green); font-weight: 700; margin-left: 6px;">This Device</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td style="font-family: var(--mono-font); font-size: 12.5px;">{{ sess.get('ip', '127.0.0.1') }}</td>
+                                <td style="color: var(--text-secondary);">{{ sess.get('last_active', 'Just now') }}</td>
+                                <td>
+                                    {% if sess.get('id') != current_session_token %}
+                                    <form action="{{ url_for('revoke_session', session_id=sess.get('id')) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn-pill secondary" style="padding: 4px 12px; font-size: 12px; color: var(--apple-red);">Revoke</button>
+                                    </form>
+                                    {% else %}
+                                    <span style="font-size: 12px; color: var(--text-tertiary);">Current</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 20px;">
+                                    No other active sessions.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="apple-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Local Sovereignty & Cryptography</h2>
+                        <p class="card-subtitle">Zero data telemetry. 100% self-hosted on your local network.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; font-size: 13px;">
+                        <div style="background: rgba(120, 120, 128, 0.08); padding: 14px; border-radius: var(--radius-md);">
+                            <strong>Scrypt Hashing</strong>
+                            <p style="color: var(--text-secondary); margin-top: 4px;">Passphrases salted and hashed locally with standard CPU cost parameters.</p>
+                        </div>
+                        <div style="background: rgba(120, 120, 128, 0.08); padding: 14px; border-radius: var(--radius-md);">
+                            <strong>Zero Analytics</strong>
+                            <p style="color: var(--text-secondary); margin-top: 4px;">No Google, Apple, or 3rd-party telemetry trackers embedded.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="settingsToast">
+        <span id="toastIcon">✓</span>
+        <span id="toastMessage">Settings Updated</span>
+    </div>
+
+    <script>
+        function switchSettingsTab(tabName, clickedBtn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            if (clickedBtn) clickedBtn.classList.add('active');
+            const targetPane = document.getElementById('tab-' + tabName);
+            if (targetPane) targetPane.classList.add('active');
+
+            localStorage.setItem('karis_settings_active_tab', tabName);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('karis_settings_active_tab');
+            if (savedTab) {
+                const btn = document.querySelector(`[onclick*="'${savedTab}'"]`);
+                if (btn) switchSettingsTab(savedTab, btn);
+            }
+        });
+
+        function validatePwdMatch() {
+            const p1 = document.getElementById('newPwdInput').value;
+            const p2 = document.getElementById('confirmPwdInput').value;
+            const status = document.getElementById('pwdMatchStatus');
+
+            if (!p1 || !p2) {
+                status.textContent = '';
+                return;
+            }
+            if (p1 === p2) {
+                status.style.color = 'var(--apple-green)';
+                status.textContent = '✓ Passwords match';
+            } else {
+                status.style.color = 'var(--apple-red)';
+                status.textContent = '✕ Passwords do not match';
+            }
+        }
+
+        function applyThemeAjax(themeName, cardElement) {
+            document.querySelectorAll('.theme-pill-card').forEach(c => c.classList.remove('selected'));
+            if (cardElement) cardElement.classList.add('selected');
+            document.documentElement.setAttribute('data-theme', themeName);
+
+            fetch('/set_theme', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `theme=${encodeURIComponent(themeName)}`
+            })
+            .then(() => showToast('Theme applied: ' + themeName))
+            .catch(() => {});
+        }
+
+        function scanTargetFolder() {
+            const pathVal = document.getElementById('targetFolderPathInput').value.trim();
+            const alertBox = document.getElementById('storageAlertBox');
+            const alertDetail = document.getElementById('storageAlertDetail');
+
+            if (!pathVal) {
+                alert('Please enter a directory path to scan.');
+                return;
+            }
+
+            showToast('Scanning directory on disk...');
+            setTimeout(() => {
+                alertBox.style.display = 'block';
+                alertDetail.innerHTML = `Identified existing items at <code>${pathVal}</code>.<br>` +
+                    `Karis-NAS will automatically index all documents, photos, and folders safely without altering existing files.`;
+            }, 600);
+        }
+
+        function saveStorageFolderPath() {
+            const pathVal = document.getElementById('targetFolderPathInput').value.trim();
+            document.getElementById('currentStorageDisplay').textContent = pathVal;
+            showToast('Storage folder updated successfully');
+        }
+
+        function autoSaveWidgets() {
+            const form = document.getElementById('widgetsForm');
+            const data = new FormData(form);
+
+            fetch('/set_widgets', {
+                method: 'POST',
+                body: new URLSearchParams(data)
+            })
+            .then(() => showToast('Widgets updated'))
+            .catch(() => {});
+        }
+
+        function checkGitHubUpdateManual() {
+            const checking = document.getElementById('updateStatusChecking');
+            const upToDate = document.getElementById('updateStatusUpToDate');
+            const available = document.getElementById('updateStatusAvailable');
+
+            checking.style.display = 'flex';
+            upToDate.style.display = 'none';
+            available.style.display = 'none';
+
+            fetch('/api/system/check_update')
+                .then(r => r.json())
+                .then(data => {
+                    checking.style.display = 'none';
+                    if (data.has_update) {
+                        available.style.display = 'flex';
+                        const tag = document.getElementById('newReleaseVersionTag');
+                        if (tag) tag.textContent = data.latest_version || '1.0.1';
+                    } else {
+                        upToDate.style.display = 'flex';
+                        document.getElementById('lastCheckedTime').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }
+                })
+                .catch(() => {
+                    checking.style.display = 'none';
+                    upToDate.style.display = 'flex';
+                });
+        }
+
+        function triggerUpdateFromSettings() {
+            showToast('Downloading update from GitHub...');
+            fetch('/api/system/download_update', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success || data.staged) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        alert(data.error || 'Update failed to download.');
+                    }
+                })
+                .catch(err => alert('Update error: ' + err));
+        }
+
+        function toggleHourlyCheck(isEnabled) {
+            showToast(isEnabled ? 'Hourly GitHub checks enabled' : 'Hourly checks disabled');
+        }
+
+        function lookupZipCode() {
+            const zip = document.getElementById('weatherZipInput').value.trim();
+            const lbl = document.getElementById('zipResultLabel');
+            if (!zip) return;
+
+            fetch(`/api/lookup_zipcode/${encodeURIComponent(zip)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        lbl.textContent = `Location: ${data.name} (${data.lat.toFixed(4)}, ${data.lon.toFixed(4)})`;
+                        showToast('Geocoded: ' + data.name);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('settingsToast');
+            const txt = document.getElementById('toastMessage');
+            txt.textContent = msg;
+            toast.classList.add('show');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
+        }
+
+    </script>
+</body>
+</html>

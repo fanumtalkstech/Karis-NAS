@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ user_theme or 'dark' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{{ error_code or 500 }} — {{ error_title or 'System Alert' }} | Karis-NAS</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121214">
+
+    <style>
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            --mono-font: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+
+            --bg-base: #0B0B0E;
+            --bg-surface: rgba(26, 26, 30, 0.72);
+            --bg-surface-elevated: rgba(36, 36, 42, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --border-glass-subtle: rgba(255, 255, 255, 0.06);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --text-tertiary: rgba(255, 255, 255, 0.42);
+
+            --apple-blue: #0A84FF;
+            --apple-blue-hover: #0071E3;
+            --apple-red: #FF453A;
+            --apple-red-glow: rgba(255, 69, 58, 0.24);
+            --apple-amber: #FF9F0A;
+            --apple-amber-glow: rgba(255, 159, 10, 0.22);
+            --apple-green: #30D158;
+            --code-bg: #141418;
+            --code-border: rgba(255, 255, 255, 0.08);
+
+            --shadow-card: 0 24px 64px rgba(0, 0, 0, 0.56), 0 4px 16px rgba(0, 0, 0, 0.35);
+            --radius-lg: 26px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        [data-theme="light"] {
+            --bg-base: #F5F5F7;
+            --bg-surface: rgba(255, 255, 255, 0.82);
+            --bg-surface-elevated: rgba(255, 255, 255, 0.95);
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --border-glass-subtle: rgba(0, 0, 0, 0.05);
+            --text-primary: #1D1D1F;
+            --text-secondary: rgba(0, 0, 0, 0.65);
+            --text-tertiary: rgba(0, 0, 0, 0.45);
+
+            --apple-blue: #0071E3;
+            --apple-blue-hover: #0077ED;
+            --apple-red: #FF3B30;
+            --apple-red-glow: rgba(255, 59, 48, 0.16);
+            --apple-amber: #FF9500;
+            --apple-amber-glow: rgba(255, 149, 0, 0.14);
+            --apple-green: #34C759;
+            --code-bg: #212124;
+            --code-border: rgba(0, 0, 0, 0.12);
+
+            --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            position: relative;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 15% 15%, var(--apple-red-glow) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(10, 132, 255, 0.12) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(140px);
+            opacity: 0.35;
+            z-index: 0;
+        }
+        .glow-1 { top: -150px; left: -150px; background: var(--apple-red); }
+        .glow-2 { bottom: -150px; right: -150px; background: var(--apple-blue); }
+
+        .error-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(36px) saturate(190%);
+            -webkit-backdrop-filter: blur(36px) saturate(190%);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 40px;
+            animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .error-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--apple-red-glow);
+            border: 1px solid rgba(255, 69, 58, 0.35);
+            border-radius: 999px;
+            color: var(--apple-red);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .status-badge.warning {
+            background: var(--apple-amber-glow);
+            border-color: rgba(255, 159, 10, 0.35);
+            color: var(--apple-amber);
+        }
+
+        .status-badge svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        .error-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+
+        .error-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .explanation-item {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-glass-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .item-icon {
+            font-size: 22px;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .item-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .item-content p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        .diagnostics-accordion {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-glass-subtle);
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-summary {
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: background 0.2s ease;
+        }
+
+        .accordion-summary:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .accordion-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .accordion-icon {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-tertiary);
+        }
+
+        details[open] .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid var(--border-glass-subtle);
+            margin-top: 4px;
+            padding-top: 16px;
+        }
+
+        .meta-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .meta-entry {
+            font-size: 12.5px;
+        }
+
+        .meta-label {
+            color: var(--text-tertiary);
+            font-weight: 500;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.04em;
+        }
+
+        .meta-val {
+            color: var(--text-primary);
+            font-family: var(--mono-font);
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .traceback-container {
+            position: relative;
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            overflow-x: auto;
+            max-height: 280px;
+        }
+
+        .traceback-text {
+            font-family: var(--mono-font);
+            font-size: 12px;
+            line-height: 1.6;
+            color: #FF7B72;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .actions-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .primary-actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 520px) {
+            .primary-actions-row {
+                grid-template-columns: 1fr;
+            }
+            .error-card {
+                padding: 24px 18px;
+            }
+            .error-title {
+                font-size: 26px;
+            }
+        }
+
+        .btn-apple {
+            appearance: none;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-size: 14.5px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .btn-apple:active {
+            transform: scale(0.98);
+        }
+
+        .btn-github {
+            background: #238636;
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(35, 134, 54, 0.35);
+        }
+        .btn-github:hover {
+            background: #2ea043;
+            box-shadow: 0 6px 18px rgba(35, 134, 54, 0.45);
+        }
+
+        .btn-primary {
+            background: var(--apple-blue);
+            color: #FFFFFF;
+        }
+        .btn-primary:hover {
+            background: var(--apple-blue-hover);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass-subtle);
+        }
+        [data-theme="light"] .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+        [data-theme="light"] .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.09);
+        }
+
+        .btn-copy {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass-subtle);
+            font-size: 13.5px;
+            padding: 10px 16px;
+        }
+        .btn-copy:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 24px;
+        }
+
+        .footer-note a {
+            color: var(--apple-blue);
+            text-decoration: none;
+        }
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(30px);
+            opacity: 0;
+            background: rgba(30, 30, 34, 0.95);
+            backdrop-filter: blur(20px);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <main class="error-card" role="alert" aria-live="assertive">
+
+        <header class="error-header">
+            <div class="status-badge {% if (error_code|int if error_code is defined else 500) < 500 %}warning{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                Error {{ error_code or 500 }}
+            </div>
+
+            <h1 class="error-title">
+                {% if error_title %}
+                    {{ error_title }}
+                {% elif (error_code|int if error_code is defined else 500) == 404 %}
+                    File or Page Not Found
+                {% elif (error_code|int if error_code is defined else 500) == 403 %}
+                    Access Forbidden
+                {% else %}
+                    Internal System Alert
+                {% endif %}
+            </h1>
+
+            <p class="error-subtitle">
+                {% if error_description %}
+                    {{ error_description }}
+                {% elif (error_code|int if error_code is defined else 500) == 404 %}
+                    The requested file, folder, or view does not exist on your Karis-NAS storage.
+                {% elif (error_code|int if error_code is defined else 500) == 403 %}
+                    Your current session does not have permission to view or modify this resource.
+                {% else %}
+                    Karis-NAS encountered an unexpected exception while processing this request.
+                {% endif %}
+            </p>
+        </header>
+
+        <section class="explanation-grid">
+            <div class="explanation-item">
+                <div class="item-icon">🔍</div>
+                <div class="item-content">
+                    <h4>What happened?</h4>
+                    <p id="whatHappenedText">
+                        {% if error_summary %}
+                            {{ error_summary }}
+                        {% elif (error_code|int if error_code is defined else 500) == 404 %}
+                            The path or endpoint you tried to access cannot be found in your local repository.
+                        {% elif (error_code|int if error_code is defined else 500) == 403 %}
+                            This location is restricted to administrators or specific shared accounts.
+                        {% else %}
+                            A runtime error occurred in the Flask application engine during execution.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="explanation-item">
+                <div class="item-icon">💡</div>
+                <div class="item-content">
+                    <h4>Suggested Resolution</h4>
+                    <p>
+                        {% if (error_code|int if error_code is defined else 500) == 404 %}
+                            Verify the URL path, or return to your <a href="{{ url_for('dashboard') }}" style="color:var(--apple-blue); font-weight:600;">Root Dashboard</a> to locate your files.
+                        {% elif (error_code|int if error_code is defined else 500) == 403 %}
+                            Ensure you are logged in with the appropriate account, or sign in as an Administrator.
+                        {% else %}
+                            Try refreshing the page or restarting the server. If this persists, report this bug on GitHub with the diagnostic report below.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <details class="diagnostics-accordion" id="diagAccordion">
+            <summary class="accordion-summary">
+                <span>Technical Diagnostics & Stack Trace</span>
+                <span class="accordion-icon">▼</span>
+            </summary>
+
+            <div class="accordion-content">
+                <div class="meta-list">
+                    <div class="meta-entry">
+                        <div class="meta-label">Timestamp</div>
+                        <div class="meta-val" id="metaTimestamp">{{ current_time or 'Just now' }}</div>
+                    </div>
+                    <div class="meta-entry">
+                        <div class="meta-label">Endpoint</div>
+                        <div class="meta-val" id="metaEndpoint">{{ (request or {}).method or 'GET' }} {{ (request or {}).path or '/dashboard' }}</div>
+                    </div>
+                    <div class="meta-entry">
+                        <div class="meta-label">User / Session</div>
+                        <div class="meta-val" id="metaUser">{{ (session or {}).get('username', 'Anonymous') }} ({{ (session or {}).get('role', 'none') }})</div>
+                    </div>
+                    <div class="meta-entry">
+                        <div class="meta-label">Client IP</div>
+                        <div class="meta-val" id="metaIp">{{ (request or {}).remote_addr or '127.0.0.1' }}</div>
+                    </div>
+                    <div class="meta-entry">
+                        <div class="meta-label">Repository</div>
+                        <div class="meta-val">fanumtalkstech/Karis-NAS</div>
+                    </div>
+                    <div class="meta-entry">
+                        <div class="meta-label">Application Version</div>
+                        <div class="meta-val">{{ current_version or '1.0' }}</div>
+                    </div>
+                </div>
+
+                <div class="traceback-container">
+                    <pre class="traceback-text" id="rawTracebackText">{{ report or (error_summary or 'No traceback available for this status code.') }}</pre>
+                </div>
+            </div>
+        </details>
+
+        <section class="actions-toolbar">
+
+            <button type="button" class="btn-apple btn-github" id="btnGitHubIssue" onclick="openGitHubIssueForm()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                🐛 Format & Report Issue on GitHub
+            </button>
+
+            <div class="primary-actions-row">
+                <a href="{{ url_for('dashboard') }}" class="btn-apple btn-primary">
+                    🏠 Return to Dashboard
+                </a>
+                <button type="button" class="btn-apple btn-secondary" onclick="window.location.reload()">
+                    ↺ Retry Request
+                </button>
+            </div>
+
+            <button type="button" class="btn-apple btn-copy" onclick="copyDiagnosticReport()">
+                📋 Copy Diagnostic Report to Clipboard
+            </button>
+        </section>
+
+        <footer class="footer-note">
+            Karis-NAS Local Storage Portal &bull; <a href="https://github.com/fanumtalkstech/Karis-NAS" target="_blank" rel="noopener noreferrer">fanumtalkstech/Karis-NAS</a>
+        </footer>
+
+    </main>
+
+    <div class="toast" id="toastNotification">
+        ✓ Diagnostic Report Copied to Clipboard
+    </div>
+
+    <script>
+        const REPO_OWNER = 'fanumtalkstech';
+        const REPO_NAME = 'Karis-NAS';
+        const GITHUB_ISSUES_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/new`;
+
+        const ERROR_CODE = "{{ error_code or 500 }}";
+        const ERROR_SUMMARY = document.getElementById('whatHappenedText') ? document.getElementById('whatHappenedText').innerText.trim() : "Internal Error";
+        const ENDPOINT = "{{ (request or {}).method or 'GET' }} {{ (request or {}).path or '/dashboard' }}";
+        const TIMESTAMP = new Date().toISOString();
+        const USER_AGENT = navigator.userAgent;
+
+        function getFullDiagnosticMarkdown() {
+            const rawTraceback = document.getElementById('rawTracebackText').innerText.trim();
+            const clientUser = "{{ (session or {}).get('username', 'Anonymous') }}";
+            const clientRole = "{{ (session or {}).get('role', 'none') }}";
+
+            return `### Problem Description\n` +
+                `An unexpected error occurred in Karis-NAS while accessing \`${ENDPOINT}\`.\n\n` +
+                `### Error Information\n` +
+                `- **Status Code:** \`${ERROR_CODE}\`\n` +
+                `- **Error Summary:** ${ERROR_SUMMARY}\n` +
+                `- **Endpoint:** \`${ENDPOINT}\`\n` +
+                `- **Timestamp:** \`${TIMESTAMP}\`\n` +
+                `- **User Session:** \`${clientUser}\` (Role: \`${clientRole}\`)\n` +
+                `- **Platform / User-Agent:** \`${USER_AGENT}\`\n\n` +
+                `### Stack Trace & Diagnostics\n` +
+                `\`\`\`text\n` +
+                `${rawTraceback}\n` +
+                `\`\`\`\n\n` +
+                `### Steps to Reproduce\n` +
+                `1. Open Karis-NAS at \`${window.location.origin}\`\n` +
+                `2. Navigate to \`${ENDPOINT}\`\n` +
+                `3. Error was triggered.\n`;
+        }
+
+        function openGitHubIssueForm() {
+            const title = `[Bug Report]: Error ${ERROR_CODE} on ${ENDPOINT}`;
+            const body = getFullDiagnosticMarkdown();
+
+            const url = `${GITHUB_ISSUES_URL}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function copyDiagnosticReport() {
+            const text = getFullDiagnosticMarkdown();
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showToast).catch(fallbackCopy);
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = typeof text === 'string' ? text : getFullDiagnosticMarkdown();
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                alert("Please manually copy the stack trace from the Technical Diagnostics section.");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toastNotification');
+            if (!toast) return;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>

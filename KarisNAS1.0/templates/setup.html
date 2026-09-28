@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Setup - Karis-NAS</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Karis-NAS">
+    <link rel="apple-touch-icon" href="/app_icon">
+
+    <style>
+
+        :root {
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --radius-full: 980px;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 16px 32px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.14);
+
+            --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms;
+            --duration-base: 300ms;
+        }
+
+        :root, [data-theme="light"] {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F7;
+            --bg: #F5F5F7;
+            --card-bg: rgba(255, 255, 255, 0.84);
+            --card-subtle: #F0F0F3;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text: #1D1D1F;
+            --accent-blue: #0071E3;
+            --accent: #0071E3;
+            --accent-glow: rgba(0, 113, 227, 0.28);
+            --accent-green: #30D158;
+            --success: #30D158;
+            --danger: #FF3B30;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --separator: rgba(0, 0, 0, 0.08);
+            --modal-backdrop: rgba(0, 0, 0, 0.35);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #000000;
+                --bg-secondary: #161618;
+                --bg: #000000;
+                --card-bg: rgba(28, 28, 30, 0.78);
+                --card-subtle: #242426;
+                --text-primary: #F5F5F7;
+                --text-secondary: #A1A1A6;
+                --text: #F5F5F7;
+                --accent-blue: #0A84FF;
+                --accent: #0A84FF;
+                --accent-glow: rgba(10, 132, 255, 0.32);
+                --accent-green: #30D158;
+                --success: #30D158;
+                --danger: #FF453A;
+                --border-color: rgba(255, 255, 255, 0.12);
+                --separator: rgba(255, 255, 255, 0.1);
+                --modal-backdrop: rgba(0, 0, 0, 0.7);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            position: relative;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: max(16px, env(safe-area-inset-top)) 14px max(32px, env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .setup-container {
+            width: 100%;
+            max-width: 660px;
+            animation: fadeInUp var(--duration-base) var(--ease-apple);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .setup-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border-radius: var(--radius-2xl);
+            border: 1px solid var(--border-color);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-xl), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--duration-fast) var(--ease-apple);
+        }
+        @media (max-width: 640px) {
+            .setup-card { padding: var(--space-5) var(--space-4); border-radius: var(--radius-xl); }
+        }
+
+        .apple-shake {
+            animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+            position: relative;
+            padding: 0 4px;
+        }
+        .progress-line {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: rgba(120, 120, 128, 0.18);
+            z-index: 1;
+            border-radius: var(--radius-full);
+        }
+        .progress-line-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.4s var(--ease-apple);
+            border-radius: var(--radius-full);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+        .step-bubble {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--card-subtle);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            position: relative;
+            transition: all var(--duration-base) var(--ease-apple);
+        }
+        .step-bubble.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #FFFFFF;
+            box-shadow: 0 0 16px var(--accent-glow);
+            transform: scale(1.12);
+        }
+        .step-bubble.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: #FFFFFF;
+        }
+
+        .step-header { text-align: center; margin-bottom: var(--space-6); }
+        .step-header h2 {
+            margin: 0 0 var(--space-2);
+            font-size: clamp(1.4rem, 2.8vw + 0.5rem, 1.9rem);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+        }
+        .step-header p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .step-app-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            margin: 0 auto var(--space-4);
+            background: linear-gradient(145deg, var(--accent), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #fff;
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .setup-step { display: none; }
+        .setup-step.active {
+            display: block;
+            animation: stepFade var(--duration-base) var(--ease-apple);
+        }
+        @keyframes stepFade {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 14px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .field-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        input[type=text], input[type=password], input[type=number], select {
+            width: 100%;
+            background: rgba(120, 120, 128, 0.08);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color var(--duration-fast) var(--ease-apple), box-shadow var(--duration-fast) var(--ease-apple);
+        }
+        input:focus, select:focus {
+            border-color: var(--accent);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-pill, .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 46px;
+            padding: 0.75rem 1.6rem;
+            background: var(--accent);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 14.5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--duration-base) var(--ease-apple);
+            box-shadow: 0 2px 8px var(--accent-glow);
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .btn-pill:hover, .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        .btn-pill:active, .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        .btn-pill.secondary {
+            background: rgba(120, 120, 128, 0.12);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+        .btn-pill.secondary:hover {
+            background: rgba(120, 120, 128, 0.2);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-pill.success {
+            background: var(--success);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(48, 209, 88, 0.3);
+        }
+        .btn-pill.success:hover {
+            box-shadow: 0 8px 24px rgba(48, 209, 88, 0.4);
+        }
+        .btn-pill.small {
+            min-height: 36px;
+            padding: 0.4rem 1.1rem;
+            font-size: 13px;
+        }
+        .btn-full { width: 100%; }
+
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-8);
+            gap: 12px;
+        }
+
+        .privacy-card {
+            background: rgba(0, 113, 227, 0.06);
+            border: 1px solid rgba(0, 113, 227, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-4);
+        }
+        .privacy-highlight {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .privacy-statement {
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+        .privacy-pillars {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: var(--space-4);
+        }
+        @media (max-width: 540px) { .privacy-pillars { grid-template-columns: 1fr; } }
+        .pillar-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .pillar-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+        .pillar-title { font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+        .pillar-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.35; }
+
+        .bookmark-banner {
+            background: rgba(120, 120, 128, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: var(--space-4) 0;
+        }
+        .bookmark-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+        .bookmark-text { font-size: 13px; line-height: 1.45; color: var(--text-primary); }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(120, 120, 128, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            transition: background var(--duration-fast) var(--ease-apple);
+        }
+        .toggle-row:hover { background: rgba(120, 120, 128, 0.12); }
+        .toggle-meta { max-width: 78%; }
+        .toggle-title { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
+        .toggle-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+
+        .ios-switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+            flex-shrink: 0;
+        }
+        .ios-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(120, 120, 128, 0.28);
+            transition: 0.3s var(--ease-apple);
+            border-radius: 31px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #FFFFFF;
+            transition: 0.3s var(--ease-apple);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        }
+        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .password-wrap { position: relative; margin-bottom: 8px; }
+        .pwd-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-secondary);
+            padding: 4px;
+        }
+        .strength-track {
+            height: 4px;
+            background: rgba(120, 120, 128, 0.18);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--danger);
+            transition: width 0.3s var(--ease-apple), background-color 0.3s var(--ease-apple);
+        }
+        .match-badge {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+        }
+        .match-badge.matched { color: var(--success); }
+        .match-badge.unmatched { color: var(--danger); }
+
+        .geocoding-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(120, 120, 128, 0.08);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+        .radar-beacon {
+            position: relative;
+            width: 8px;
+            height: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radar-core {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            z-index: 2;
+        }
+        .radar-ring {
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            border: 1.5px solid var(--success);
+            opacity: 0.8;
+            animation: sonarRadar 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+        @keyframes sonarRadar {
+            0% { transform: scale(0.6); opacity: 0.9; }
+            50% { opacity: 0.4; }
+            100% { transform: scale(2.0); opacity: 0; }
+        }
+
+        .tour-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: var(--space-5) 0;
+        }
+        @media (max-width: 540px) { .tour-grid { grid-template-columns: 1fr; } }
+        .tour-card {
+            background: rgba(120, 120, 128, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: left;
+            transition: all var(--duration-fast) var(--ease-apple);
+        }
+        .tour-card:hover {
+            transform: translateY(-2px);
+            background: rgba(120, 120, 128, 0.12);
+            box-shadow: var(--shadow-sm);
+        }
+        .tour-icon { font-size: 26px; margin-bottom: 6px; }
+        .tour-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; color: var(--text-primary); }
+        .tour-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-card" id="setupCard">
+
+            <div class="step-progress">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progressLine"></div>
+                </div>
+                <div class="step-bubble active" id="bubble-1">1</div>
+                <div class="step-bubble" id="bubble-2">2</div>
+                <div class="step-bubble" id="bubble-3">3</div>
+                <div class="step-bubble" id="bubble-4">4</div>
+                <div class="step-bubble" id="bubble-5">5</div>
+            </div>
+
+            <form id="setupForm" method="POST" action="/setup">
+
+                <div class="setup-step active" id="step-1">
+                    <div class="step-header">
+                        <div class="step-app-icon"></div>
+                        <h2>Welcome to <span class="gradient-text">Karis-NAS</span></h2>
+                        <p>Your private, self-hosted cloud storage, media center, and encrypted communication hub.</p>
+                    </div>
+
+                    <div class="bookmark-banner">
+                        <span class="bookmark-icon">⭐</span>
+                        <div class="bookmark-text">
+                            <strong>Quick Access Pro-Tip:</strong> Bookmark this page now (<kbd>Ctrl+D</kbd> or <kbd>⌘+D</kbd>, or tap <em>"Add to Home Screen"</em> on iPhone/iPad) to jump straight to your portal anytime.
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(120, 120, 128, 0.08); border-radius: var(--radius-lg); padding: 18px; border: 1px solid var(--border-color); margin-top: 18px; text-align: left;">
+                        <div style="font-weight: 700; font-size: 14.5px; margin-bottom: 6px;">Setup Overview (5 Easy Steps):</div>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                            <li><strong>Step 1:</strong> Welcome & Quick Access</li>
+                            <li><strong>Step 2:</strong> Data Privacy Guarantee (100% Local)</li>
+                            <li><strong>Step 3:</strong> Administrator Account & Storage Location</li>
+                            <li><strong>Step 4:</strong> Automatic Updates & Local Weather</li>
+                            <li><strong>Step 5:</strong> Feature Tour & Launch Karis-NAS</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-nav" style="justify-content: flex-end;">
+                        <button type="button" class="btn-pill" onclick="goToStep(2)">Get Started →</button>
+                    </div>
+                </div>
+
+                <div class="setup-step" id="step-2">
+                    <div class="step-header">
+                        <div style="font-size: 42px; margin-bottom: 8px;">🛡️</div>
+                        <h2>Your Data <span class="gradient-text">Stays With You</span></h2>
+                        <p>True private cloud storage with zero tracking or telemetry.</p>
+                    </div>
+
+                    <div class="privacy-card">
+                        <div class="privacy-highlight">
+                            <span>🔒</span> <span>100% Local & Self-Hosted</span>
+                        </div>
+                        <div class="privacy-statement">
+                            <strong>Nothing is stored outside of your area, and we don't see anything you do.</strong> Your files, messages, and configurations never leave your machine.
+                        </div>
+
+                        <div class="privacy-pillars">
+                            <div class="pillar-item">
+                                <span class="pillar-icon">🚫</span>
+                                <div>
+                                    <div class="pillar-title">Zero Analytics</div>
+                                    <div class="pillar-desc">No external telemetry, cloud tracking, or data collection of any kind.</div>
+                                </div>
+                            </div>
+                            <div class="pillar-item">
+                                <span class="pillar-icon">🔐</span>
+                                <div>
+                                    <div class="pillar-title">End-to-End Encrypted</div>
+                                    <div class="pillar-desc">Private messages are encrypted locally on your browser before sending.</div>
+                                </div>
+                            </div>
+                            <div class="pillar-item">
+                                <span class="pillar-icon">💻</span>
+                                <div>
+                                    <div class="pillar-title">100% Machine-Local</div>
+                                    <div class="pillar-desc">All files stay strictly on your designated drive or Documents directory.</div>
+                                </div>
+                            </div>
+                            <div class="pillar-item">
+                                <span class="pillar-icon">🔑</span>
+                                <div>
+                                    <div class="pillar-title">Scrypt Cryptography</div>
+                                    <div class="pillar-desc">Account passwords are authenticated using salted scrypt hashing.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="toggle-row" style="cursor: pointer;">
+                        <div class="toggle-meta">
+                            <div class="toggle-title">Acknowledge Privacy & Local Storage</div>
+                            <div class="toggle-desc">I understand Karis-NAS is hosted entirely on my personal hardware.</div>
+                        </div>
+                        <input type="checkbox" id="privacyAgreeCheckbox" checked onchange="toggleStep2Next(this.checked)" style="width: 20px; height: 20px; accent-color: var(--accent);">
+                    </label>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-pill secondary" onclick="goToStep(1)">← Back</button>
+                        <button type="button" class="btn-pill" id="step2NextBtn" onclick="goToStep(3)">Continue →</button>
+                    </div>
+                </div>
+
+                <div class="setup-step" id="step-3">
+                    <div class="step-header">
+                        <h2>Administrator & <span class="gradient-text">Storage Setup</span></h2>
+                        <p>Create your primary account and specify where your files are staying.</p>
+                    </div>
+
+                    <div style="background: rgba(120, 120, 128, 0.08); border-radius: var(--radius-xl); padding: var(--space-5); border: 1px solid var(--border-color); margin-bottom: var(--space-4);">
+                        <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--accent);">👤 Primary Administrator Account</div>
+
+                        <div class="field-label" style="margin-top: 0;">Admin Username</div>
+                        <input type="text" name="admin_username" id="adminUsername" value="ADMIN" required autocomplete="username">
+
+                        <div class="field-label">Admin Password</div>
+                        <div class="password-wrap">
+                            <input type="password" name="admin_password" id="adminPassword" placeholder="Create secure password" required autocomplete="new-password" oninput="validatePasswords()">
+                            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('adminPassword', this)" title="Show/Hide">👁️</button>
+                        </div>
+
+                        <div class="strength-track">
+                            <div class="strength-fill" id="strengthBar"></div>
+                        </div>
+
+                        <div class="field-label">Confirm Password</div>
+                        <div class="password-wrap">
+                            <input type="password" id="adminPasswordConfirm" placeholder="Re-enter password" required autocomplete="new-password" oninput="validatePasswords()">
+                            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('adminPasswordConfirm', this)" title="Show/Hide">👁️</button>
+                        </div>
+                        <div class="match-badge" id="matchBadge">
+                            <span id="matchText">Re-enter password to verify</span>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(120, 120, 128, 0.08); border-radius: var(--radius-xl); padding: var(--space-5); border: 1px solid var(--border-color); margin-bottom: var(--space-4);">
+                        <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--accent);">📁 Where the Files are Staying</div>
+
+                        <div class="field-label" style="margin-top: 0;">Storage Directory Path</div>
+                        <input type="text" name="storage_folder" value="C:\Users\Mason McCarley\Documents" placeholder="C:\Users\YourName\Documents" required>
+                        <div class="field-sub">User storage folders and shared volumes will reside inside this directory on your drive.</div>
+
+                        <div class="field-label" style="margin-top: 14px;">Administrator Quota</div>
+                        <select name="admin_quota_choice" style="width: 100%;">
+                            <option value="unlimited" selected>Unlimited Storage (Recommended for Admin)</option>
+                            <option value="100">100 GB</option>
+                            <option value="50">50 GB</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top: 14px;">
+                        <button type="button" class="btn-pill secondary small" onclick="addUserRow()">＋ Add Another User Account</button>
+                        <div id="additionalUsersList" style="margin-top: 10px;"></div>
+                    </div>
+                    <input type="hidden" name="additional_users_json" id="additionalUsersJson" value="[]">
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-pill secondary" onclick="goToStep(2)">← Back</button>
+                        <button type="button" class="btn-pill" id="step3NextBtn" onclick="validateAndGoToStep4()">Continue →</button>
+                    </div>
+                </div>
+
+                <div class="setup-step" id="step-4">
+                    <div class="step-header">
+                        <h2>Updates & <span class="gradient-text">Preferences</span></h2>
+                        <p>Configure automated maintenance and local widget data.</p>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-meta">
+                            <div class="toggle-title">
+                                <span>🔄</span> <span>GitHub Hourly Auto-Update</span>
+                            </div>
+                            <div class="toggle-desc">
+                                Check for updates automatically every hour via GitHub (<a href="https://github.com/fanumtalkstech/Karis-NAS" target="_blank" style="color: var(--accent); text-decoration: none;">fanumtalkstech/Karis-NAS</a>).
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" name="github_hourly_updates" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="background: rgba(120, 120, 128, 0.08); border-radius: var(--radius-xl); padding: var(--space-5); border: 1px solid var(--border-color); margin-bottom: 14px;">
+                        <div class="field-label" style="margin-top: 0;">🌤 Local Weather & US ZIP Code</div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" name="weather_zip" id="weatherZipInput" value="45631" placeholder="Enter US ZIP (e.g. 45631)" maxlength="5" style="width: 140px;" oninput="debouncedZipLookup()">
+                            <button type="button" class="btn-pill secondary small" onclick="lookupZipcode(true)" style="padding: 10px 14px; font-size: 13px;">Lookup</button>
+                        </div>
+
+                        <div class="geocoding-pill" id="zipResultBadge">
+                            <div class="radar-beacon">
+                                <div class="radar-ring"></div>
+                                <div class="radar-core"></div>
+                            </div>
+                            <span id="zipResultText">Gallipolis, OH (38.81°, -82.21°) • Active</span>
+                        </div>
+                        <input type="hidden" name="weather_location" id="weatherLocationHidden" value="Gallipolis, OH">
+                        <input type="hidden" name="weather_lat" id="weatherLatHidden" value="38.8098">
+                        <input type="hidden" name="weather_lon" id="weatherLonHidden" value="-82.2104">
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-meta">
+                            <div class="toggle-title">💬 End-to-End Encrypted Messaging</div>
+                            <div class="toggle-desc">Private direct messages between users with client-side encryption.</div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" name="feature_messaging" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-meta">
+                            <div class="toggle-title">📊 Live Activity Monitor</div>
+                            <div class="toggle-desc">Display real-time CPU, RAM, and host storage telemetry.</div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" name="feature_system_monitor" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-meta">
+                            <div class="toggle-title">🧪 Optional & Beta Mode Features</div>
+                            <div class="toggle-desc">Enable experimental Apple design components and preview features.</div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" name="beta_mode" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-pill secondary" onclick="goToStep(3)">← Back</button>
+                        <button type="button" class="btn-pill" onclick="goToStep(5)">Continue →</button>
+                    </div>
+                </div>
+
+                <div class="setup-step" id="step-5">
+                    <div class="step-header">
+                        <div class="step-app-icon" style="background: linear-gradient(145deg, #30D158, #0071E3);">✓</div>
+                        <h2>Ready to Launch <span class="gradient-text">Karis-NAS</span></h2>
+                        <p>Setup is complete! Here's a quick tour of your new private cloud portal.</p>
+                    </div>
+
+                    <div class="tour-grid">
+                        <div class="tour-card">
+                            <div class="tour-icon">🏠</div>
+                            <div class="tour-title">Homescreen Widgets</div>
+                            <div class="tour-desc">Fluid clock, local weather, private quick notes, and recent message alerts.</div>
+                        </div>
+                        <div class="tour-card">
+                            <div class="tour-icon">📁</div>
+                            <div class="tour-title">Apple Finder Files</div>
+                            <div class="tour-desc">Segmented path bar, instant search, drag-and-drop, and Apple QuickLook previews.</div>
+                        </div>
+                        <div class="tour-card">
+                            <div class="tour-icon">🔒</div>
+                            <div class="tour-title">E2EE Messages</div>
+                            <div class="tour-desc">Client-side encrypted chats, live read receipts, and custom speech bubble themes.</div>
+                        </div>
+                        <div class="tour-card">
+                            <div class="tour-icon">📊</div>
+                            <div class="tour-title">Activity Monitor</div>
+                            <div class="tour-desc">Live CPU, RAM, and storage telemetry gauges with an animated sonar radar.</div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(48, 209, 88, 0.08); border: 1px solid rgba(48, 209, 88, 0.25); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 20px; font-size: 13px; text-align: left;">
+                        <strong style="color: var(--success);">Network Access Available:</strong>
+                        <div style="color: var(--text-secondary); margin-top: 4px;">
+                            You can connect immediately on this machine at <code>http://localhost:3251</code>, or from your iPhone, iPad, and other devices on your local Wi-Fi.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-pill success btn-full" style="min-height: 50px; font-size: 16px; letter-spacing: -0.01em;">
+                        🚀 Launch Karis-NAS
+                    </button>
+
+                    <div style="margin-top: 14px; text-align: center;">
+                        <button type="button" class="btn-pill secondary small" onclick="goToStep(4)">← Review Settings</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let userCount = 0;
+        let zipDebounceTimer = null;
+
+        function updateProgress(step) {
+            const pct = ((step - 1) / 4) * 100;
+            const line = document.getElementById('progressLine');
+            if (line) line.style.width = pct + '%';
+
+            for (let i = 1; i <= 5; i++) {
+                const bubble = document.getElementById('bubble-' + i);
+                if (!bubble) continue;
+                bubble.classList.remove('active', 'completed');
+                if (i === step) {
+                    bubble.classList.add('active');
+                    bubble.textContent = i;
+                } else if (i < step) {
+                    bubble.classList.add('completed');
+                    bubble.textContent = '✓';
+                } else {
+                    bubble.textContent = i;
+                }
+            }
+        }
+
+        function goToStep(step) {
+            if (step < 1 || step > 5) return;
+            document.querySelectorAll('.setup-step').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById('step-' + step);
+            if (target) target.classList.add('active');
+            currentStep = step;
+            updateProgress(step);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleStep2Next(agreed) {
+            const btn = document.getElementById('step2NextBtn');
+            if (!btn) return;
+            btn.disabled = !agreed;
+            btn.style.opacity = agreed ? '1' : '0.5';
+            btn.style.cursor = agreed ? 'pointer' : 'not-allowed';
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            const isPass = inp.type === 'password';
+            inp.type = isPass ? 'text' : 'password';
+            btn.textContent = isPass ? '🙈' : '👁️';
+        }
+
+        function validatePasswords() {
+            const pass = document.getElementById('adminPassword').value;
+            const confirmPass = document.getElementById('adminPasswordConfirm').value;
+            const matchBadge = document.getElementById('matchBadge');
+            const matchText = document.getElementById('matchText');
+            const strengthBar = document.getElementById('strengthBar');
+
+            let strength = 0;
+            if (pass.length >= 6) strength += 30;
+            if (pass.length >= 10) strength += 30;
+            if (/[0-9]/.test(pass)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(pass)) strength += 20;
+
+            if (strengthBar) {
+                strengthBar.style.width = Math.min(strength, 100) + '%';
+                if (strength < 40) strengthBar.style.backgroundColor = 'var(--danger)';
+                else if (strength < 70) strengthBar.style.backgroundColor = '#FF9500';
+                else strengthBar.style.backgroundColor = 'var(--success)';
+            }
+
+            if (!confirmPass) {
+                matchText.textContent = "Re-enter password to verify";
+                matchBadge.className = "match-badge";
+                return false;
+            }
+
+            if (pass === confirmPass) {
+                matchText.textContent = "✓ Passwords match";
+                matchBadge.className = "match-badge matched";
+                return true;
+            } else {
+                matchText.textContent = "✕ Passwords do not match";
+                matchBadge.className = "match-badge unmatched";
+                return false;
+            }
+        }
+
+        function validateAndGoToStep4() {
+            const pass = document.getElementById('adminPassword').value.trim();
+            const confirmPass = document.getElementById('adminPasswordConfirm').value.trim();
+            const card = document.getElementById('setupCard');
+
+            if (!pass || pass.length < 4) {
+                alert("Please provide an administrator password (at least 4 characters).");
+                if (card) { card.classList.add('apple-shake'); setTimeout(() => card.classList.remove('apple-shake'), 500); }
+                return;
+            }
+
+            if (pass !== confirmPass) {
+                alert("Administrator passwords do not match. Please verify both password entries.");
+                if (card) { card.classList.add('apple-shake'); setTimeout(() => card.classList.remove('apple-shake'), 500); }
+                return;
+            }
+
+            serializeAdditionalUsers();
+            goToStep(4);
+        }
+
+        function addUserRow() {
+            userCount++;
+            const container = document.getElementById('additionalUsersList');
+            const row = document.createElement('div');
+            row.id = 'userRow_' + userCount;
+            row.style.cssText = "background: rgba(120, 120, 128, 0.08); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 12px; position: relative;";
+            row.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-weight:600; font-size:13px; color:var(--text-primary);">User #${userCount}</div>
+                    <button type="button" onclick="removeUserRow(${userCount})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:600;">Remove</button>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div>
+                        <div class="field-label" style="margin-top:0;">Username</div>
+                        <input type="text" class="extra-username" placeholder="Username" required>
+                    </div>
+                    <div>
+                        <div class="field-label" style="margin-top:0;">Password</div>
+                        <input type="password" class="extra-password" placeholder="Password" required>
+                    </div>
+                </div>
+                <div style="margin-top:8px;">
+                    <div class="field-label" style="margin-top:0;">Storage Limit (GB)</div>
+                    <input type="number" class="extra-quota" value="50" min="1" max="10000" style="width:120px;">
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeUserRow(id) {
+            const row = document.getElementById('userRow_' + id);
+            if (row) row.remove();
+            serializeAdditionalUsers();
+        }
+
+        function serializeAdditionalUsers() {
+            const users = [];
+            document.querySelectorAll('#additionalUsersList > div').forEach(row => {
+                const u = row.querySelector('.extra-username')?.value.trim();
+                const p = row.querySelector('.extra-password')?.value;
+                const q = row.querySelector('.extra-quota')?.value || 50;
+                if (u && p) {
+                    users.push({ username: u, password: p, quota_gb: parseInt(q) });
+                }
+            });
+            const input = document.getElementById('additionalUsersJson');
+            if (input) input.value = JSON.stringify(users);
+        }
+
+        function debouncedZipLookup() {
+            clearTimeout(zipDebounceTimer);
+            const zip = document.getElementById('weatherZipInput').value.trim();
+            if (zip.length === 5) {
+                zipDebounceTimer = setTimeout(() => lookupZipcode(false), 300);
+            }
+        }
+
+        function lookupZipcode(isManual) {
+            const zip = document.getElementById('weatherZipInput').value.trim();
+            const badge = document.getElementById('zipResultBadge');
+            const text = document.getElementById('zipResultText');
+            if (!zip || zip.length < 5) {
+                if (isManual) alert("Please enter a valid 5-digit US ZIP code.");
+                return;
+            }
+            text.textContent = "Looking up coordinates...";
+
+            fetch(`/api/lookup_zipcode/${zip}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        text.textContent = `${data.location} (${data.lat}°, ${data.lon}°) • Active`;
+                        badge.style.color = "var(--success)";
+                        badge.style.borderColor = "rgba(48, 209, 88, 0.3)";
+                        document.getElementById('weatherLocationHidden').value = data.location;
+                        document.getElementById('weatherLatHidden').value = data.lat;
+                        document.getElementById('weatherLonHidden').value = data.lon;
+                    } else {
+                        text.textContent = "Using Gallipolis, OH fallback";
+                    }
+                })
+                .catch(() => {
+                    text.textContent = `${zip} selected (Offline fallback)`;
+                });
+        }
+
+    </script>
+</body>
+</html>
