@@ -1,6 +1,6 @@
 # Karis-NAS 1.0 (Official Release)
 
-Personal Cloud Storage & Media Streaming Portal.
+Personal Cloud Storage Portal.
 
 ## Quick Start
 1. Double-click `install.bat` (or run `python installer.py`).
