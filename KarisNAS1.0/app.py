@@ -63,12 +63,16 @@ EDITABLE_EXTENSIONS = {
 
 # Concurrency locks and file persistence
 
-sessions_lock = threading.Lock()
+sessions_lock = threading.RLock()
 users_lock = threading.Lock()
 config_lock = threading.Lock()
 shares_lock = threading.Lock()
 messages_lock = threading.Lock()
 _session_last_touched = {}
+
+# sessions_lock is reentrant on purpose: touch_session() takes it and then calls
+# save_sessions(), which takes the same lock again. A plain Lock deadlocked the
+# first request after login that wrote the session record.
 
 def safe_save_json(file_path, data, lock=None):
     """Windows-safe atomic JSON file persistence."""
@@ -346,6 +350,8 @@ def touch_session(session_token):
                 s['last_active'] = datetime.datetime.now().strftime('%b %d, %I:%M %p')
                 changed = True
                 break
+        # Pass the already-held (reentrant) lock through instead of relying on
+        # the outer acquire alone.
         if changed:
             save_sessions(sessions)
 
@@ -1558,9 +1564,12 @@ def handle_not_found(e):
 def handle_any_error(e):
     from werkzeug.exceptions import HTTPException
     if isinstance(e, HTTPException):
-        # Allow standard HTTP exceptions with specific status codes to be styled
-        if e.code in (400, 403, 404):
-            return e
+        # Re-raise EVERY HTTP error (400, 403, 404, 405, ...).
+        # Only 400/403/404 used to be re-raised, so a 405 fell through to
+        # build_error_report() -> traceback.format_exc() with no exception being
+        # handled, which Python re-raises right back into this handler: an
+        # infinite 500 loop that pegged a CPU core on every /settings request.
+        return e
 
     import traceback
     traceback.print_exc()
@@ -1948,7 +1957,7 @@ def api_lookup_zipcode(zipcode):
     # Fast offline fallback for Gallipolis, OH
     if clean_zip == '45631':
         return jsonify({
-            'success': True, 'location': 'Gallipolis, OH',
+            'success': True, 'name': 'Gallipolis, OH', 'location': 'Gallipolis, OH',
             'lat': 38.8098, 'lon': -82.2104, 'zip': clean_zip
         })
 
@@ -1966,9 +1975,12 @@ def api_lookup_zipcode(zipcode):
             state = place['state abbreviation']
             lat = float(place['latitude'])
             lon = float(place['longitude'])
+            label = f"{city}, {state}"
+            # Both keys are returned: settings.html reads data.name, setup.html reads data.location
             return jsonify({
                 'success': True,
-                'location': f"{city}, {state}",
+                'name': label,
+                'location': label,
                 'lat': lat,
                 'lon': lon,
                 'zip': clean_zip
@@ -1976,7 +1988,8 @@ def api_lookup_zipcode(zipcode):
     except Exception:
         # Default to Gallipolis fallback if network lookup fails
         return jsonify({
-            'success': True, 'location': f'ZIP {clean_zip} (Default)',
+            'success': True, 'name': f'ZIP {clean_zip} (Default)',
+            'location': f'ZIP {clean_zip} (Default)',
             'lat': 38.8098, 'lon': -82.2104, 'zip': clean_zip
         })
 
