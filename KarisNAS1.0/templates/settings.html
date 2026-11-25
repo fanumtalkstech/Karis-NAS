@@ -1240,18 +1240,70 @@
                 return;
             }
 
+            // Real scan: POSTs to /api/storage/scan_folder and reports what is actually on disk.
             showToast('Scanning directory on disk...');
-            setTimeout(() => {
-                alertBox.style.display = 'block';
-                alertDetail.innerHTML = `Identified existing items at <code>${pathVal}</code>.<br>` +
-                    `Karis-NAS will automatically index all documents, photos, and folders safely without altering existing files.`;
-            }, 600);
+            fetch('/api/storage/scan_folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ folder_path: pathVal })
+            })
+                .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                .then(({ ok, data }) => {
+                    alertBox.style.display = 'block';
+                    if (!ok || !data.success) {
+                        alertDetail.innerHTML = `<strong style="color: var(--danger, #FF453A)">Could not scan</strong><br>` +
+                            `${data.error || 'Unknown error'}`;
+                        showToast('Scan failed');
+                        return;
+                    }
+                    if (data.exists === false) {
+                        alertDetail.innerHTML = `Folder does not exist yet:<br><code>${data.formatted_path || pathVal}</code><br>` +
+                            `It will be created automatically if you save this path.`;
+                        showToast('Folder not found');
+                        return;
+                    }
+                    const samples = (data.sample_items || []).map(escapeHtml).join(', ');
+                    alertDetail.innerHTML =
+                        `Found <strong>${data.file_count || 0}</strong> files and <strong>${data.dir_count || 0}</strong> subfolders ` +
+                        `(${data.total_size_display || '0 MB'}) in <code>${escapeHtml(data.formatted_path || pathVal)}</code>.` +
+                        (samples ? `<br><span style="opacity:.7">Sample: ${samples}</span>` : '') +
+                        `<br>Readable: ${data.readable ? 'yes' : 'no'} &bull; Writable: ${data.writable ? 'yes' : 'no'}`;
+                    showToast(`Found ${data.total_items || 0} items`);
+                })
+                .catch(() => {
+                    alertBox.style.display = 'block';
+                    alertDetail.innerHTML = 'Scan request failed (server unreachable).';
+                    showToast('Scan failed');
+                });
         }
 
         function saveStorageFolderPath() {
             const pathVal = document.getElementById('targetFolderPathInput').value.trim();
-            document.getElementById('currentStorageDisplay').textContent = pathVal;
-            showToast('Storage folder updated successfully');
+            if (!pathVal) {
+                alert('Please enter a directory path.');
+                return;
+            }
+
+            // Real save: POSTs to /settings/update_storage_folder. The old version only
+            // changed the text on screen, so the UI claimed success while nothing moved.
+            const body = new URLSearchParams();
+            body.append('storage_folder', pathVal);
+            fetch('/settings/update_storage_folder', {
+                method: 'POST',
+                body: body,
+                redirect: 'follow'
+            })
+                .then(() => {
+                    document.getElementById('currentStorageDisplay').textContent = pathVal;
+                    showToast('Storage folder updated successfully');
+                })
+                .catch(() => showToast('Could not update storage folder'));
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
         }
 
         function autoSaveWidgets() {
